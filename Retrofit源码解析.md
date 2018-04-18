@@ -262,3 +262,4 @@ public <T> T create(final Class<T> service) {
 **动态代理设计模式：**是Java提供的一套动态代理机制，将代理类的实现交给`InvocationHandler`类作为具体的实现，每次调用网络请求接口中的方法时，都要在`InvocationHandler`类的invoke()方法中被拦截一次，然后让代理类去完成相应的操作。
 
 
+#### 未完待续。。。。
