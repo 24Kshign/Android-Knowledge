@@ -1,7 +1,7 @@
 ### ButterKnife源码解析
 
 #### 1、介绍
-butterknife主要是为了解决findViewById和setOnClickListener
+butterknife主要是为了解决findViewById和setOnClickListener等
 
 #### 2、原理
 主要采用编译时注解，就是采用APT生成代码。在编译源文件时，会分析扫描注解，当扫描到butterknife定义的@BindView、@OnClick等注解时，会使用JavaPoet来生成代码。生成后的文件会再次分析，直到没有分析到需要处理的注解位置。关键是AbstractProcessor（编译时注解处理器）
