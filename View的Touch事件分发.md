@@ -11,7 +11,7 @@ OnTouch，OnTouchEvent，OnClickListener三者都有时：
 
 执行顺序为：OnTouch.DOWN---->OnTouch.MOVE---->OnTouch.UP，不会执行OnTouchEvent和OnClickListener方法
 
-**(3)、没有OnTouch**
+**(3)、没有OnTouch，OnTouchEvent返回true**
 执行顺序为：OnTouchEvent.DOWN---->OnTouchEvent.MOVE---->OnTouchEvent.UP，不会执行OnClickListener
 
 #### 2、View中有两个非常重要的与Touch相关的方法
@@ -65,4 +65,4 @@ if (!disallowIntercept) {
 }
 ```
 
-每次有事件时，都会按照Activity---->ViewGroup---->View这样的线路开始分发，而且最先调用的肯定是dispatchTouchEvent()方法，在ViewGroup的dispatchTouchEvent方法中会调用onInterceptTouchEvent()方法询问是否拦截事件(返回false表示不拦截事件，事件会继续往下一层传递；true表示拦截，事件不会往下传了，这时会调用ViewGroup的OnTouchEvent方法，自己消费，而且在同一个事件列的其他事件中也都直接自己消费，不会往下传递)，还会遍历该ViewGroup下的所有子View，
+每次有事件时，都会按照Activity---->ViewGroup---->View这样的线路开始分发，而且最先调用的肯定是dispatchTouchEvent()方法，在ViewGroup的dispatchTouchEvent方法中会调用onInterceptTouchEvent()方法询问是否拦截事件(返回false表示不拦截事件，事件会继续往下一层传递；true表示拦截，事件不会往下传了，这时会调用ViewGroup的OnTouchEvent方法，自己消费，而且在同一个事件列的其他事件中也都直接自己消费，不会往下传递)，还会遍历该ViewGroup下的所有子View。
