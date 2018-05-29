@@ -151,7 +151,15 @@ for (i in 1 until 5){
 ### 静态类和静态方法
 
 ##### object（全局）：
-在java中，我们使用static来修饰类或者方法，标示该类或方法是静态方法，在kotlin中我们可以使用object来修饰类，这样我们就可以直接 **类名.方法** 名调用静态类中的方法了，但是不能用来修饰方法。
+使用object修饰的类，同时会创建一个实例（类似Java中的单例模式），可以直接通过 **类名.方法名**或者**类名.属性名**来直接调用该类中的方法或者属性。
+
+```
+object TestUtil{
+	fun test(str:String){
+	}
+}
+```
+需要注意的是，如果在Java中调用的话需要先访问该类静态的INSTANCE，如`TestUtil.INSTANCE.test()`
 
 ##### companion object（部分）：
 在kotlin中，我们可以使用`companion object{}`来修饰方法：
