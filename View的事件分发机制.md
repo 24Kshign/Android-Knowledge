@@ -14,9 +14,9 @@
 ```
 ViewGroup:dispatchTouchEvent->
 ViewGroup:onInterceptTouchEvent->
-     View:dispatchTouchEvent->
-     View:onInterceptTouchEvent->
-     View:onTouchEvent...
+View:dispatchTouchEvent->
+View:onInterceptTouchEvent->
+View:onTouchEvent...
 ```
 * 时间从下往上分发,当事件向下传递的过程中没有被任何View消费,那么事件会传到最后的那个View里面,然后再返回到最上层的View中.最后的终点就是一开始传递事件的那个View.View2->ViewGroup2...方法的传递顺序就是:
 ```
