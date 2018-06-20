@@ -281,18 +281,91 @@ fun String?.isEmpty() = this == null || length == 0
 
 Java的方法执行需要压栈出栈，如果一个方法被多次调用，那么就需要多次的压栈出栈，为了节省这个操作，提高一定的效率，在kotlin中使用内联函数来拷贝你调用的方法，然后在你当前方法中使用。
 
+下面列举kotlin中常用的几个函数：
+
 ##### 1.1、let函数
 
-let函数默认当前这个对象作为闭包的it参数，返回值是函数里面最后一行，或者指定的return
+let扩展函数的实际上是一个作用域函数，当你需要去定义一个变量在一个特定的作用域范围内，let函数的是一个不错的选择；let函数另一个作用就是可以避免写一些判断null的操作。let函数是有返回值的，它的返回值为函数块的最后一行或指定return表达式。
+
+**使用场景：需要去明确一个变量所处特定的作用域范围内可以使用。**
 
 ```
-fun <T, R> T.let(f: (T) -> R): R = f(this)
+@kotlin.internal.InlineOnly
+public inline fun <T, R> T.let(block: (T) -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return block(this)
+}
 ```
 
-##### 1.2、with函数
+##### 1.2、also函数
 
-##### 1.3、run函数
+also函数和let基本一样，不同的是also返回的是当前对象。
 
-##### 1.4、apply函数
+**使用场景：和let一样**
 
-##### 1.5、also函数
+```
+@kotlin.internal.InlineOnly
+@SinceKotlin("1.1")
+public inline fun <T> T.also(block: (T) -> Unit): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    block(this)
+    return this
+}
+```
+
+##### 1.3、with函数
+
+with函数与其他函数不同，他不是一个扩展函数，它是将某个对象作为函数的参数，在函数块内可以通过 this 指代该对象。返回值为函数块的最后一行或指定return表达式。
+
+**使用场景：适用于调用同一个类的多个方法时，可以省去类名重复，直接调用类的方法即可，经常用于Android中RecyclerView中onBinderViewHolder中，数据model的属性映射到UI上。**
+
+```
+@kotlin.internal.InlineOnly
+public inline fun <T, R> with(receiver: T, block: T.() -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return receiver.block()
+}
+```
+
+##### 1.4、run函数
+
+run函数实际上可以说是let和with两个函数的结合体，run函数只接收一个lambda函数为参数，以闭包形式返回，返回值为最后一行的值或者指定的return的表达式。
+
+**使用场景：适用于let,with函数任何场景**
+
+```
+@kotlin.internal.InlineOnly
+public inline fun <T, R> T.run(block: T.() -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return block()
+}
+```
+
+##### 1.5、apply函数
+
+apply和run差不多，不同的是apply函数返回的是他传入的对象
+
+**使用场景：apply一般用于一个对象实例初始化的时候，需要对对象中的属性进行赋值。**
+
+```
+@kotlin.internal.InlineOnly
+public inline fun <T> T.apply(block: T.() -> Unit): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    block()
+    return this
+}
+```
+
+**注意：上面这些函数它们还有一个共同的使用场景，就是可以用来判空**
+
+![](http://ooaap25kv.bkt.clouddn.com/18-6-20/98174175.jpg)
