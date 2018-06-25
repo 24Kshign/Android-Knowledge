@@ -156,9 +156,9 @@ public void dispatchMessage(Message msg) {
 
 ### 4、面试题
 
-#### Q：handler发送一个延迟消息之后，在发送完到处理的这段时间，Looper处于什么状态（handler延时发送消息的流程）？
+#### Q1：handler发送一个延迟消息之后，在发送完到处理的这段时间，Looper处于什么状态（handler延时发送消息的流程）？
 
-A：上面我们都说过了，Handler在sendMessage的时候，消息队列中是根据delay延迟时间进行排序的，如果延迟时间过长，那么这个时间Looper在干什么呢？我们可以从Looper中的loop()方法中找答案：
+#### A1：上面我们都说过了，Handler在sendMessage的时候，消息队列中是根据delay延迟时间进行排序的，如果延迟时间过长，那么这个时间Looper在干什么呢？我们可以从Looper中的loop()方法中找答案：
 
 ```
 public static void loop() {
@@ -258,3 +258,49 @@ Message next() {
 }
 ```
 通过上述源码我们不难看出，Looper在消息还未准备好时会被阻塞，等待下一个准备好的消息（也就是delay时间到了），自动唤醒，将该消息取出给handler处理，然后又会进入next方法，继续判断当前时间是否小于下一条消息的delay时间。
+
+#### Q2：Handler.sendMessage和Handler.obtainMessage有什么区别？
+
+有什么区别，那我们还是得到源码当中去找答案：
+
+```
+obtainMessage:
+
+public final Message obtainMessage(){
+    return Message.obtain(this);
+}
+
+public static Message obtain(Handler h) {
+    Message m = obtain();
+    m.target = h;
+
+    return m;
+}
+
+public static Message obtain() {
+    synchronized (sPoolSync) {
+        if (sPool != null) {
+            Message m = sPool;
+            sPool = m.next;
+            m.next = null;
+            m.flags = 0; // clear in-use flag
+            sPoolSize--;
+            return m;
+        }
+    }
+    return new Message();
+}
+
+sendMessage：
+
+public final boolean sendMessage(Message msg){
+    return sendMessageDelayed(msg, 0);
+}
+
+...
+
+剩下的源码看上面的解析
+```
+
+我们可以看到obtainMessage获取到的Message是从消息池中获取到的，如果消息池中没有消息再去new，而sendMessage传的参数是我们已经new好了的，所以区别就在这里。
+

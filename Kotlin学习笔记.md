@@ -369,3 +369,5 @@ public inline fun <T> T.apply(block: T.() -> Unit): T {
 **注意：上面这些函数它们还有一个共同的使用场景，就是可以用来判空**
 
 ![](http://ooaap25kv.bkt.clouddn.com/18-6-20/98174175.jpg)
+
+#### 未完待续...
