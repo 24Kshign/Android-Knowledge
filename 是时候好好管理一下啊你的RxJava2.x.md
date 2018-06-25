@@ -39,4 +39,4 @@
 
 ![](http://ooaap25kv.bkt.clouddn.com/18-6-22/78624525.jpg)
 
-相信大家都看到了，退出activity的时候，我们把做了unbind操作，但是rxjava发送事件还没有停止，然后就发生了上述悲剧。接下来我们使用官方回调给我们的Disposable这个东西来让Rxjava的事件停止，只需要在onDestroy
+相信大家都看到了，退出activity的时候，我们把做了unbind操作，但是rxjava发送事件还没有停止，然后就发生了上述悲剧。接下来我们使用官方回调给我们的Disposable这个东西来让Rxjava的事件停止，只需要在onDestroy中切断Observable（被观察者）和Observer（观察者）的联系，使用Disposable.dispose()方法即可，那么在

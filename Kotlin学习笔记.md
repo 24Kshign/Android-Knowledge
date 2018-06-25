@@ -281,7 +281,7 @@ fun String?.isEmpty() = this == null || length == 0
 
 Java的方法执行需要压栈出栈，如果一个方法被多次调用，那么就需要多次的压栈出栈，为了节省这个操作，提高一定的效率，在kotlin中使用内联函数来拷贝你调用的方法，然后在你当前方法中使用。
 
-下面列举kotlin中常用的几个函数：
+下面列举kotlin中常用的几个函数，用法可以参考：[Kotlin中let、also、with、apply函数](https://blog.csdn.net/u013064109/article/details/78786646)
 
 ##### 1.1、let函数
 
