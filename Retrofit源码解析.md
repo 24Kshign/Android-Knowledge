@@ -1,5 +1,5 @@
 ## Retrofit源码解析
-###1、定义
+### 1、定义
 Retrofit是基于OkHttp的一个Resultful设计风格的Http网络请求框架。确切的来说，Retrofit只负责网络请求接口的封装（包括请求参数，头部等信息），本质上还是由OkHttp来处理网络请求；在服务端但会数据之后，OkHttp将原始的结果交给Retrofit，Retrofit根据用户的需求对结果进行解析。
 
 ### 2、过程
