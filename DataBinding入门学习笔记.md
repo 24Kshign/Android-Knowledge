@@ -1,87 +1,70 @@
 
-## 微信小程序学习笔记
+## DataBinding学习笔记
 
 ### 学习网站
 
-#### [微信小程序简易教程（官网）](https://developers.weixin.qq.com/miniprogram/dev/)
-#### [微信小程序开发资源汇总](https://github.com/justjavac/awesome-wechat-weapp)
+#### [DataBinding使用全面详解](https://www.jianshu.com/p/ba4982be30f8)
 
 ### 
 
-#### 1、基本知识（着重部分）
-##### [基础知识准备（参考教程）](https://www.jianshu.com/p/aaef5ceb3936)
-##### 1.1、微信小程序中就四种类型的文件
+#### 1、基本使用
+##### 1.1、DataBinding介绍
 
-  js ---------- JavaScrip文件（必须）  
-  
-  json -------- 项目配置文件，负责窗口颜色等等，内部不能为空白文档，必须添加 Page ({ })（必须）  
-  
-  wxml -------- 类似HTML文件  
-  
-  wxss -------- 类似CSS文件（必须）  
-  
-  对应文件：  
-  pages文件夹： 书写各个页面代码以及组件。内部js文件书写js ;  wxml文件为HTML ;   wxss文件为css样式 ； json文件为配置当前页面的默认项，如title等
-
-utils文件夹：  书写作用在全局的js共用方法等
-
-app.js文件：  全局js配置文件，这里定义的变量为全局变量，可在页面内通过 getApp() 获取
-
-app.json文件：  全局默认配置项，如路由、小程序的状态栏、导航条、标题、窗口背景色。
-
-app.wxss文件： 全局css样式文件
-
-在根目录下用app来命名的这四中类型的文件，就是程序入口文件。
+    DataBinding是一个数据绑定框架，以前我们在Activity里写很多的findViewById，现在如果我们使用DataBinding，就可以抛弃findViewById。DataBinding主要解决了两个问题：
+- 需要多次使用findViewById，损害了应用性能且令人厌烦
+- 更新UI数据需切换至UI线程，将数据分解映射到各个view比较麻烦
 
 
-##### 1.2、生命周期
+##### 1.2、DataBinding的导入
 
-| 属性 | 类型 | 描述 |
-| ----|:-----:|:-----:|
-| data | Object | 页面的初始数据 |
-| onLoad | function | 监听页面加载，一个页面只会调用一次 | 
-| onReady | function | 监听页面初次渲染完成，一个页面只会调用一次，代表页面已经准备妥当，可以和视图层进行交互 | 
-| onShow | function  | 每次打开页面都会调用一次 | 
-| onHide | function | 监听页面隐藏，当navigateTo或底部tab切换时调用 | 
-| onUnload | function | 监听页面卸载 ，当redirectTo或navigateBack的时候调用 | 
-| onLaunch | function | 监听小程序初始化，当小程序初始化完成时，会触发 onLaunch（全局只触发一次） | 
-| onError | function | 错误监听函数，当小程序发生脚本错误，或者 api 调用失败时，会触发 onError 并带上错误信息 | 
+在应用的build.gradle文件中添加如下代码：
+```
+android {
+    ...
 
-##### 1.3、配置
-###### 1.app.json :
+    //导入dataBinding支持
+    dataBinding{
+        enabled true
+    }
+
+    ...
+}
+```
+
+##### 1.3、摆脱findviewbyid及绑定
+###### 1.布局文件 :
 	
 ```
-    ”pages”: [] 设置页面路径
-    “window”: { //设置默认窗口的表现(颜色都是十六进制的)
-    “navigationBarBackgroundColor”: #000, //导航栏背景颜色
-    “navigationBarTextStyle”: white/black, //导航栏标题颜色，仅支持black/white
-    “navigationBarTitleText”: string, //导航栏标题
-    “backgroundColor”: #fff, //窗口的背景颜色
-    “backgroundTextStyle”: dark, //下拉背景字体、loading 图的样式，仅支持 dark/light
-    “enablePullDownRefresh”: boolean //是否开启下拉刷新,详见页面相关事件处理函数。
-    }
-    “tabBar”: { //设置底部的tab
-    “color”: #ddd, //tab上文字的默认颜色
-    “selectedColor”: #333, //选中tab时的颜色
-    “backgroundColor” #ccc, //tab背景颜色
-    “borderStyle”: black/white, //tabBar上边框的颜色，仅支持black/white
-    “list”: [ //tab 的列表
-    {
-    “pagePath”: ‘../..’, //pages中定义的页面路径
-    “text”: string, //tab上的按钮文字
-    “iconPath”: ‘../..’, //图片路径，icon 大小限制为40kb，建议尺寸为 81px * 81px，当 postion 为 top 时，此参数无效
-    “selectedIconPath”: ‘../..’ //选中时的图片路径，icon 大小限制为40kb，建议尺寸为 81px * 81px ，当 postion 为 top 时，此参数无效
-    }
-    ],
-    “position”: top/bottom //
-    }
-    “networkTime”: { //网络超时时间
-    “request”: 10 000, //wx.request 的请求超时时间，默认60 000(下面都是)
-    “connectSocket”: 10 000, //wx.connectSocket的超时时间
-    “uploadFile”: 10 000, //wx.uploadFile的超时时间
-    “downloadFile”: 10 000, //wx.downloadFile的超时时间
-    }
-    “debug”: boolean 是否开启debug模式 
+<?xml version="1.0" encoding="utf-8"?><!--布局以layout作为根布局-->
+<layout>
+
+    <data>
+        <!--绑定基本数据类型及String-->
+        <!--name:   和java代码中的对象是类似的，名字自定义-->
+        <!--type:   和java代码中的类型是一致的-->
+        <variable
+            name="content"
+            type="String" />
+
+        <variable
+            name="enabled"
+            type="boolean" />
+    </data>
+    <!--我们需要展示的布局-->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!--绑定基本数据类型及String的使用是通过   @{数据类型的对象}  通过对应数据类型的控制显示-->
+        <Button
+            android:id="@+id/main_tv2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="@{enabled}"
+            android:text="@{content}" />
+    </LinearLayout>
+</layout>
 ```
 ###### 2.page.json :  
 页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键。  
