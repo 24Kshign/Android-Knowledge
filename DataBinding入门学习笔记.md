@@ -67,58 +67,161 @@ android {
     </LinearLayout>
 </layout>
 ```
-###### 2.page.json :  
+在布局中是通过@{}来绑定数据的，{}中是布局中该控件属性对应的数据类型数据，同时还可以支持运算符运算和静态方法调用和转换，这个后面会介绍
+
+###### 2.MainActivity文件 :  
 页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键。  
 属性如下：
 ```
-{
-“navigationBarBackgroundColor”: #000,
-“navigationBarTextStyle”: black/white,
-“navigationBarTitleText”: string,
-“backgroundColor”: #ddd,
-“backgroundTextStyle”: dark/light,
-“enablePullDownRefresh”: boolean,
-“disableScroll”: boolean //设置为 true 则页面整体不能上下滚动；只在 page.json 中有效，无法在 app.json 中设置该项(默认 false )
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //通过DataBInding加载布局都会对应的生成一个对象，如ActivityMainBinding，对象名在布局文件名称后加上了一个后缀Binding
+        binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.activity_main);
+
+        //2.绑定基本数据类型及String
+        binding.setContent("对String类型数据的绑定");//setContent就是给布局文件text属性绑定的content设置值
+        binding.setEnabled(false);//设置enabled值为false
+        //给控件设置点击事件，发现其实点击无效，因为在布局文件中给cilckable属性绑定了enabled,在代码中设置enabled值为false，所以点击事件无效
+        binding.mainTv2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "我被点击了", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
 }
 ```
-###### 3.app.js :  
-开发工具会生成一个默认的程序框架，其中程序的主流程代码包含在app.js中。一般会用来设置全局变量，比如用户信息等。  
+
+##### 1.4、绑定model数据
+###### 1.Model数据类型 :
 
 ```
-{
-globalData:{    //定义需要传输的全局对象
-    userInfo:null,    
-    test:"test"    
-}   
+public class User {
+    private String text;
 
-var test = getApp().globalData.test;  //获取  
-console.log(test)   
-```
-###### 4.app.wxss :  
-app.wxss 是整个小程序的公共样式表。我们可以在页面组件的 class 属性上直接使用 app.wxss 中声明的样式规则。如果页面有自己的样式表， 则会覆盖公共样式表。  
-```
-.container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0rpx 0;
-  box-sizing: border-box;
+    public User(String text) {
+        this.text = text;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 }
 ```
-#### 2、基础语法（着重部分）
-##### 2.1、小程序的页面标签
-标签中的自定义属性必须以 data- 开头  
+
+###### 2.布局文件 :
 
 ```
-<view></view>    类似于div标签，表示一个容器  
+<?xml version="1.0" encoding="utf-8"?><!--布局以layout作为根布局-->
+<layout>
 
-<image src='/'><image>   类似于 <img> 标签，表示一张图片   /表示根目录，不指定宽高的情况下默认宽度300px、高度225px  
+    <data>
+        <!--绑定Model数据2中形式，一中是导入该类型的，一种指定类型的全称，和java一样-->
+        <!--  方式一 -->
+        <variable
+            name="user"
+            type="www.zhang.com.databinding.User" />
+        <!--  方式二 -->
+        <!--<import type="www.zhang.com.databinding.User" />-->
+        <!--<variable-->
+            <!--name="user"-->
+            <!--type="User" />-->
 
-<text></text>    类似于<span></span>标签，表示行内文本只有被该标签包围的文本才能被长按选中text标签可以嵌套text标签，会直接解析转义字符
+    </data>
+    <!--我们需要展示的布局-->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-<swiper><swiper>   图片轮播，样式和属性作用在swiper标签上  
+        <Button
+            android:id="@+id/main_btn3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{user.text}" /><!--这里user.text相当于user.getText()-->
+    </LinearLayout>
+</layout>
+```
+
+###### 3.MainActivity文件 :
+
+```
+public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        //通过DataBInding加载布局都会对应的生成一个对象，如ActivityMainBinding，对象名在布局文件名称后加上了一个后缀Binding
+        binding = DataBindingUtil.setContentView(MainActivity.this, R.layout.activity_main);
+
+        //3.绑定model对象数据
+        User user = new User("绑定Model数据类型");
+        binding.setUser(user);//或者 binding.setVariable(BR.user,user);
+    }
+}
+```
+[注]：binding设置数据有两种方式:1.binding.setUser(user) 2.binding.setVariable(BR.user,user)–采用BR指定
+
+##### 1.5、事件的绑定
+
+```
+<Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="@{event.click}"
+                android:text="@{title}" />
+```
+事件的多种写法：
+1.android:onClick="@{event.click1}"
+2.android:onClick="@{event::click2}"
+3.android:onClick="@{()->event.cilck3(title4
+[注]：()->event.cilck3(title4)是lambda表达式写法，
+也可以写成：(view)->event.cilck3(title4),前面(view)表示onClick方法的传递的参数，
+如果event.click3()方法中不需要用到view参数，可以将view省略。
+
+
+#### 2、基本原理
+
+    一个Activity会有一个Window对象，而一个Window对象也有一个DecorView。DecorView是一个ViewGroup，布局文件都是通过inflate转化为view，加入到DecorView中，可以说DecorView是最大的根布局，而这个android.R.id.content正是它的id。DataBinding通过获取这个根布局，然后通过for循环将里面的控件一个个return出去，然后在生成的实体类再一个个获取。这样子的效率比直接findViewByid要效率的多，因为每次findViewByid都需要进行一次for循环在ViewGroup里面来寻找指定id名的控件。
+    生成ActivityMainBinding实例并绑定过程，主要有三个过程：：
+
+第一步就是Inflate 处理后的布局文件，由于现在activity_main.xml文件与普通的layout文件一样。现在DataBindingUtil将会Inflate activity_main.xml文件，得到一个ViewGroup变量root。
+
+第二步就是生成ActivityMainBinding实例对象，DataBindingUtil会将这个变量root传递给ActivityMainBinding的构造方法，生成一个ActivityMainBinding的实例，就是我们在onCreate方法中获取的binding对象。在该构造方法中，ActivityMainBinding会首先遍历root，根据各个View的Tag或者id，初始化自己的fields，完成后，ActivityMainBinding将会把之前加到各个View上的Tags清空。最后，构造方法调用invalidateAll引发数据绑定。
+
+第三步就是进行数据绑定。在这一步中，ActivityMainBinding将会计算各个view上的binding表达式，然后赋值给view相应的属性。
+代码如下（省略了细节）：
+```
+@Override 
+protected void executeBindings() { 
+  java.lang.String firstNameUser = null; 
+  java.lang.String lastNameUser = null; 
+  com.like4hub.www.databindingtest.User user = mUser; 
+
+  if (user != null) { 
+     // read user.firstName 
+     firstNameUser = user.getFirstName(); 
+     // read user.lastName 
+     lastNameUser = user.getLastName(); 
+   } 
+
+   TextViewBindingAdapter.setText(this.firstname, firstNameUser); 
+   TextViewBindingAdapter.setText(this.lastname, lastNameUser);
+   ImageViewBindingAdapter.setImageDrawable(this.mboundView3,
+   getDrawableFromResource(R.drawable.avatar_pure)); 
+}
 ```
 	
 ##### 2.2、小程序的数据赋值
