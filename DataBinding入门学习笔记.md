@@ -10,7 +10,8 @@
 #### 1、基本使用
 ##### 1.1、DataBinding介绍
 
-    DataBinding是一个数据绑定框架，以前我们在Activity里写很多的findViewById，现在如果我们使用DataBinding，就可以抛弃findViewById。DataBinding主要解决了两个问题：
+    DataBinding是一个数据绑定框架，以前我们在Activity里写很多的findViewById，现在如果我们使用DataBinding，
+    就可以抛弃findViewById。DataBinding主要解决了两个问题：
 - 需要多次使用findViewById，损害了应用性能且令人厌烦
 - 更新UI数据需切换至UI线程，将数据分解映射到各个view比较麻烦
 
