@@ -73,8 +73,6 @@ android {
 在布局中是通过@{}来绑定数据的，{}中是布局中该控件属性对应的数据类型数据，同时还可以支持运算符运算和静态方法调用和转换，这个后面会介绍
 
 ###### 2.MainActivity文件 :  
-页面的.json只能设置 window 相关的配置项，以决定本页面的窗口表现，所以无需写 window 这个键。  
-属性如下：
 ```
 public class MainActivity extends AppCompatActivity {
 
