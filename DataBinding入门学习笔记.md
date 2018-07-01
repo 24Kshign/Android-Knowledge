@@ -7,16 +7,19 @@
 
 ### 
 
-#### 1、基本使用
-##### 1.1、DataBinding介绍
+#### 1、DataBinding介绍
 
-    DataBinding是一个数据绑定框架，以前我们在Activity里写很多的findViewById，现在如果我们使用DataBinding，
-    就可以抛弃findViewById。DataBinding主要解决了两个问题：
+    DataBinding是一个数据绑定框架，是Google对MVVM在Android上的一种实现，可以直接绑定数据到xml中，并实现自动刷新。
+    以前我们在Activity里写很多的findViewById，现在如果我们使用DataBinding，就可以抛弃findViewById。DataBinding
+    主要解决了两个问题：
 - 需要多次使用findViewById，损害了应用性能且令人厌烦
 - 更新UI数据需切换至UI线程，将数据分解映射到各个view比较麻烦
+    
 
 
-##### 1.2、DataBinding的导入
+#### 2、基本使用
+
+##### 2.1、DataBinding的导入
 
 在应用的build.gradle文件中添加如下代码：
 ```
@@ -32,7 +35,7 @@ android {
 }
 ```
 
-##### 1.3、摆脱findviewbyid及绑定
+##### 2.2、摆脱findviewbyid及绑定
 ###### 1.布局文件 :
 	
 ```
@@ -98,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
-##### 1.4、绑定model数据
+##### 2.3、绑定model数据
 ###### 1.Model数据类型 :
 
 ```
@@ -174,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 ```
 [注]：binding设置数据有两种方式:1.binding.setUser(user) 2.binding.setVariable(BR.user,user)–采用BR指定
 
-##### 1.5、事件的绑定
+##### 2.4、事件的绑定
 
 ```
 <Button
@@ -194,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 如果event.click3()方法中不需要用到view参数，可以将view省略。
 
 
-#### 2、基本原理
+#### 3、基本原理
 
     一个Activity会有一个Window对象，而一个Window对象也有一个DecorView。DecorView是一个ViewGroup，布局文件都是通过
     inflate转化为view，加入到DecorView中，可以说DecorView是最大的根布局，而这个android.R.id.content正是它的id。
@@ -229,151 +232,83 @@ protected void executeBindings() {
    getDrawableFromResource(R.drawable.avatar_pure)); 
 }
 ```
-	
-##### 2.2、小程序的数据赋值
 
-请求回来的数据，使用 this.setData() 方法，传入需要赋值到data数据的变量  
-小程序总是会读取data对象里的数据来进行页面的数据绑定，这个动作是在onLoad事件之后执行的
-```
-var data = '获取到的数据'
 
-this.setData(data)
-```
+#### 3、性能介绍
 
-如果获取到的数据是一个数组，那么需要传入一个对象  
-```
-this.setData({ local_key: data});    // 这样在data里面就相当于有一个数组local_key
+    1、0反射
+    2、findViewById需要遍历整个viewgroup，而现在只需要做一次就可以初始化所有需要的view
+    3、使用位标记来检验更新（dirtyFlags）
+    4、数据改变在下一次批量更新才会触发操作
+    5、表达式缓存，同一次刷新中不会重复计算
+    6、自动帮助我们进行空指针的避免，比如说@{employee.firstName}，如果employee是null的话，employee.firstName则会被赋默认值（null）。
+    int的话，则是0。
+    
+#### 4、Observable
 
+    一个纯净的Java ViewModel类被更新后，并不会让UI去更新。而数据绑定后，我们当然会希望数据变更后UI会即时刷新，
+    Observable就是为此而生的概念：
+    
+##### 4.1、类继承BaseObservable:
+   
 ```
-
-##### 2.3、小程序的显示隐藏
-通过使用wx:if = ‘值’ 以及wx:else 来进行显示和隐藏的判断
-```
- <image src='/images/b.jpg' wx:if="true"></image>
-```
-
-##### 2.4、小程序的循环输出
-使用<block></block>标签将循环的内容包裹
-
-wx:for = '{{ 循环数组 }}'   wx:for-item = '循环的值'   wx:key = 'key值'   wx:for-index = '下标'
-
-循环的值默认是 item , 这里的 wx:for-item也可以省略不写，  wx:for-index 默认是 index  
-```
-var local_key = [1,2,3,4,5,6,7]
-
-<block wx:for="{{local_key}}" wx:for-item="item" wx:key="unique">
-    <view  class='list'>
-      {{item}}
-    </view>
-</block>
-```
-##### 2.5、小程序的时间绑定
-可以使用bind和catch绑定  
-bindtap或者bind:tap 不阻止冒泡  
-catchtap或者catch:tap 阻止冒泡  
-```
-<text class='gofont' bind:tap="go">开启小程序之旅</text>
-```
-
-##### 2.6、小程序的页面跳转
-1.跳转后可以返回：  
-
-```
-wx.navigateTo({
-url: '跳转页面相对路径',
-})
+   private static class User extends BaseObservable {
+   private String firstName;
+   private String lastName;
+   @Bindable
+   public String getFirstName() {
+       return this.firstName;
+   }
+   @Bindable
+   public String getLastName() {
+       return this.lastName;
+   }
+   public void setFirstName(String firstName) {
+       this.firstName = firstName;
+       notifyPropertyChanged(BR.firstName);
+   }
+   public void setLastName(String lastName) {
+       this.lastName = lastName;
+       notifyPropertyChanged(BR.lastName);
+   }
 }
 ```
+    BaseObservable提供了一系列notify函数（其实就是notifyChange和notifyPropertyChanged），前者会刷新所有的值域，
+    后者则只更新对应BR的flag，该BR的生成通过注释@Bindable生成，在上面的实例代码中，我们可以看到两个get方法被注释上了，
+    所以我们可以通过BR访问到它们并进行特定属性改变的notify。
+    
+##### 4.2、Observable Fields:
+    
+如果所有要绑定的都需要创建Observable类，那也太麻烦了。所以Data Binding还提供了一系列Observable，包括 ObservableBoolean,
+ObservableByte, ObservableChar, ObservableShort, ObservableInt, ObservableLong, ObservableFloat, ObservableDouble, 
+和ObservableParcelable。我们还能通过ObservableField泛型来申明其他类型，如
+    
+```
+   private static class User {
+   public final ObservableField<String> firstName =
+       new ObservableField<>();
+   public final ObservableField<String> lastName =
+       new ObservableField<>();
+   public final ObservableInt age = new ObservableInt();
+   }
+```
+在xml中，使用方法和普通的String，int一样，只是会自动刷新，但在java中访问则会相对麻烦：
+    
+```
+user.firstName.set("Google");
+int age = user.age.get();
+```
+相对来说，每次要get/set还是挺麻烦，私以为还不如直接去继承BaseObservable。
+    
+    
+    
+ 
+    
 
-2.跳转后不能返回： 
 
-```
-wx.redirectTo({
-url: '跳转页面相对路径',
-})
-```
 
-3.跳转到有tab切换的页面：  
-```
-wx.switchTab({
-url: '../post/post',
-})
-```
-##### 2.7、小程序的跳转传参  
-举个例子：
-在wxml中：  
-```
-<view bindtap="shoppingCar" data-index="{{index}}">兑换</view>
-```
-在对应的js文件中：
-```
- //跳转到购物车页面
-  shoppingCar: function (e) {
-    var index = e.target.dataset.index; //获取到了传参的值并做跳转
-    wx.navigateTo({
-      url: '../detail/detail?id='+index,
-    })
-  }
-```
 
-在跳转到的detail.js文件中：
-```
-Page({
-  data:{
-    title:''
-  },
-  onLoad:function(options){
-    // 页面初始化 options为页面跳转所带来的参数
-    this.setData({
-        title:options.title //就是传过来的值
-    })
-  },
-})
-```
 
-##### 2.8、小程序的设置缓存 
-小程序的缓存最多不能超过7M
-同步方法设置或修改：　key表示缓存变量名，string/object表示缓存的内容，可以是 string/object 中的一种类型:
-```
-wx.setStorageSync(key, string/object)
-```
 
-同步方法获取缓存：key表示缓存变量名,获取后赋值给变量:  
-```
-const value = wx.getStorageSync(key)
-```
-
-同步方法删除指定缓存：key表示缓存变量名:
-```
-wx.removeStorageSync(key)
-```
-
-同步方法删除所有缓存：
-```
-wx.clearStorageSync()
-```
-
-##### 2.8、小程序的弹窗
-#### [参考](https://blog.csdn.net/gao_xu_520/article/details/71084162?locationNum=1&fps=1)
-
-#### 3、开发中遇到的问题
-##### 3.1、textarea层级最高,使用z-index也无效
-示例：  
-   当我在textarea的控件上方需要弹出个选项窗口，我把该窗口的层级设为最高时，弹出弹窗也还是会显示底层的textarea的文字，  
-也就是说textarea层级最高，无论z-index设置成多少都无作用。
-解决办法：
-   通过使用临时变量保存textarea中的内容，在弹出时设置textarea内容为空，隐藏时重新赋值。
-   
-##### 3.1、tab页面只能使用switchTab
-页面要返回/跳转至tabbar的某一页面，可用：
-```
-wx.switchTab({  
-      url: '../b/b'  
-    }); 
-```
-注意switchTab只能跳转到带有tab的页面，不能跳转到不带tab的页面
-
-##### 3.2、苹果小屏幕手机会出现布局错乱的情况
-在出现错乱的控件所对应的css中，将高度height改为固定高度或者去掉，最好不写上height:100%。
-
+	
 
