@@ -184,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
                 android:text="@{title}" />
 ```
 事件的多种写法：
-1.android:onClick="@{event.click1}"
-2.android:onClick="@{event::click2}"
-3.android:onClick="@{()->event.cilck3(title4
+1.android:onClick="@{event.click1}" 
+2.android:onClick="@{event::click2}" 
+3.android:onClick="@{()->event.cilck3(title4 
 [注]：()->event.cilck3(title4)是lambda表达式写法，
 也可以写成：(view)->event.cilck3(title4),前面(view)表示onClick方法的传递的参数，
 如果event.click3()方法中不需要用到view参数，可以将view省略。
@@ -194,8 +194,12 @@ public class MainActivity extends AppCompatActivity {
 
 #### 2、基本原理
 
-    一个Activity会有一个Window对象，而一个Window对象也有一个DecorView。DecorView是一个ViewGroup，布局文件都是通过inflate转化为view，加入到DecorView中，可以说DecorView是最大的根布局，而这个android.R.id.content正是它的id。DataBinding通过获取这个根布局，然后通过for循环将里面的控件一个个return出去，然后在生成的实体类再一个个获取。这样子的效率比直接findViewByid要效率的多，因为每次findViewByid都需要进行一次for循环在ViewGroup里面来寻找指定id名的控件。
-    生成ActivityMainBinding实例并绑定过程，主要有三个过程：：
+    一个Activity会有一个Window对象，而一个Window对象也有一个DecorView。DecorView是一个ViewGroup，布局文件都是通过inflate转化为view，加入到 
+    DecorView中，可以说DecorView是最大的根布局，而这个android.R.id.content正是它的id。DataBinding通过获取这个根布局，然后通过for循环将里面的控件
+    一个个return出去，然后在生成的实体类再一个个获取。这样子的效率比直接findViewByid要效率的多，因为每次findViewByid都需要进行一次for循环在
+    ViewGroup里面来寻找指定id名的控件。
+    
+生成ActivityMainBinding实例并绑定过程，主要有三个过程：：
 
 第一步就是Inflate 处理后的布局文件，由于现在activity_main.xml文件与普通的layout文件一样。现在DataBindingUtil将会Inflate activity_main.xml文件，得到一个ViewGroup变量root。
 
