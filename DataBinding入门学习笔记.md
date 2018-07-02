@@ -188,10 +188,10 @@ public class MainActivity extends AppCompatActivity {
 
     1.android:onClick="@{event.click1}" 
     2.android:onClick="@{event::click2}" 
-    3.android:onClick="@{()->event.cilck3(title4 
+    3.android:onClick="@{()->event.cilck3(title）}"
     
-[注]：()->event.cilck3(title4)是lambda表达式写法，
-也可以写成：(view)->event.cilck3(title4),前面(view)表示onClick方法的传递的参数，
+[注]：()->event.cilck3(title)是lambda表达式写法，
+也可以写成：(view)->event.cilck3(title),前面(view)表示onClick方法的传递的参数，
 如果event.click3()方法中不需要用到view参数，可以将view省略。
 
 
