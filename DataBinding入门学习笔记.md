@@ -4,6 +4,7 @@
 ### 学习网站
 
 #### [DataBinding使用全面详解](https://www.jianshu.com/p/ba4982be30f8)
+#### [从零开始的Android新项目--Data Binding](http://blog.zhaiyifan.cn/2016/06/16/android-new-project-from-0-p7/)
 
 ### 
 
