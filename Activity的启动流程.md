@@ -1,6 +1,177 @@
-### Activity的启动流程：
+## Activity的启动流程
 
-——> 先调用performLauncherActivity
+
+#### 注：本篇文章只分析打开应用后页面间的跳转
+
+启动某一个页面的时候我们是调用Activity的startActivity系列方法：
+
+```
+Activity类：
+
+public void startActivity(Intent intent) {
+    
+}
+
+public void startActivity(Intent intent, @Nullable Bundle options) {
+
+}
+
+public void startActivityForResult(@RequiresPermission Intent intent, int requestCode, @Nullable Bundle options) {
+		
+	 Instrumentation.ActivityResult ar = mInstrumentation.execStartActivity(xxx);
+
+	 ...
+
+}
+```
+
+```
+Instrumentation类：
+
+public ActivityResult execStartActivity(xxx) {
+
+	 ...
+	 int result = ActivityManager.getService().startActivity(xxx);
+	 ...
+
+}
+```
+
+```
+ActivityManagerService类：
+
+public final int startActivity(xxx) {
+	 return startActivityAsUser(xxx);        
+}
+
+public final int startActivityAsUser(xxx) {
+            
+	 ...
+	 return mActivityStarter.startActivityMayWait(xxx);
+}
+```
+
+```
+ActivityStarter类：
+
+final int startActivityMayWait(xxx) {
+
+	 ...
+	 int res = startActivityLocked(xxx);
+	 ...
+
+}
+
+int startActivityLocked(xxx) {
+
+	 ...
+	 mLastStartActivityResult = startActivity(xxx);
+	 ...
+}
+
+private int startActivity(xxx) {
+
+	 ...
+	 return startActivity(xxx);
+}
+
+private int startActivity(xxx) {
+
+	 ...
+	 result = startActivityUnchecked(xxx);
+	 ...
+}
+
+private int startActivityUnchecked(xxx) {
+
+	 ...
+	 mSupervisor.resumeFocusedStackTopActivityLocked(xxx);
+	 ...
+}
+```
+
+```
+ActivityStackSupervisor类：
+
+boolean resumeFocusedStackTopActivityLocked(xxx) {
+
+	 ...
+	 return targetStack.resumeTopActivityUncheckedLocked(xxx);
+	 ...
+}
+```
+
+```
+ActivityStack类：
+
+boolean resumeTopActivityUncheckedLocked(xxx) {
+
+	 ...
+	 result = resumeTopActivityInnerLocked(prev, options);
+	 ...
+}
+
+private boolean resumeTopActivityInnerLocked(xxx) {
+
+	 ...
+	 mStackSupervisor.startSpecificActivityLocked(xxx);
+	 ...
+}
+```
+
+```
+ActivityStackSupervisor类：
+
+void startSpecificActivityLocked(xxx) {
+
+	 ...
+	 realStartActivityLocked(xxx);
+	 ...
+}
+
+final boolean realStartActivityLocked(xxx) {
+
+	 ...
+	 app.thread.scheduleLaunchActivity(xxx);
+	 
+	 app.thread为IApplicationThread，它的实现类是ApplicationThread
+	 ...
+}
+```
+
+```
+ActivityThread类：
+
+private class ApplicationThread extends IApplicationThread.Stub {
+
+	 ...
+	 
+	 public final void scheduleLaunchActivity(xxx){
+	 
+	 	 ...
+	 	 sendMessage(H.LAUNCH_ACTIVITY, r);
+	 }
+	 
+	 ...
+}
+
+private class H extends Handler{
+
+	 ...
+	 public void handleMessage(Message msg) {
+	 
+	 	 ...
+	 	 case LAUNCH_ACTIVITY: {
+	 	 	 ...
+	 	 	 handleLaunchActivity(r, null, "LAUNCH_ACTIVITY");
+	 	 }
+	 }
+}
+```
+
+——> 先调用handleLauncherActivity
+
+——> 再调用performLauncherActivity
 
 ——> 然后调Activity.onCreate方法
 
