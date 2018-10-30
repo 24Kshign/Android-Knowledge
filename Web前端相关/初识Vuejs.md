@@ -362,3 +362,26 @@ Vue是一套用于构建用户界面的渐进式框架。Vue 被设计为可以�
 	})
 </script>
 ```
+
+### 遇到的一些问题
+
+#### 1、使用:src动态设置图片不显示
+
+动态切换img标签的src时，写的路径就是不生效，原因是vue并没有把你的路径字符串当做路径来处理，而是直接当做字符串了，处理方法如下：
+
+```
+<template>
+	<div class="wrapper">
+		<img :src="logo" />
+	</div>
+</template>
+
+<script>
+export default {
+	data() {
+		logo_error: '图片路径',  //错误写法
+		logo: require('图片路径')   //正确写法
+	}
+}
+</script>
+```
