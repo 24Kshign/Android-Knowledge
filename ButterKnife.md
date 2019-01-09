@@ -112,3 +112,7 @@ private void subscribe(Object subscriber, SubscriberMethod subscriberMethod) {
         }
     }
 ```
+
+**EventBus.getDefault().post**
+
+通过 `post` 方法来发送一个事件，然后会根据当前传入的参数来查询之前注册时所存的数据，通过这个参数获得类名，方法名等，然后再用反射的方法去执行某个类的某个方法，这样就能响应式的实现我们想要的功能。
