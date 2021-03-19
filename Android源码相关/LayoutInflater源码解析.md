@@ -215,7 +215,7 @@ public final View createView(String name, String prefix, AttributeSet attrs) thr
 
 ### 总结：LayoutInflater有两个加载布局的方法，分别是两个参数和三个参数的，这里有以下几种情况：
 
-####(1)、如果root为null，无论attachToRoot为true或者false，返回的都是一个不带LayoutParams的View。
-####(2)、如果root不为null，attachToRoot为true，会返回一个带有LayoutParams的View，并且该View会添加到root布局。
-####(3)、如果root不为null，attachToRoot为false，也会返回一个带有LayoutParams的View，但不会添加到root布局。
-####(4)、如果root不为null，不设置attachToRoot(即调用两个参数的方法)，情况和(2)中一样。
+#### (1)、如果root为null，无论attachToRoot为true或者false，返回的都是一个不带LayoutParams的View。
+#### (2)、如果root不为null，attachToRoot为true，会返回一个带有LayoutParams的View，并且该View会添加到root布局。
+#### (3)、如果root不为null，attachToRoot为false，也会返回一个带有LayoutParams的View，但不会添加到root布局。
+#### (4)、如果root不为null，不设置attachToRoot(即调用两个参数的方法)，情况和(2)中一样。
